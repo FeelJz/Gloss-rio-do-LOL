@@ -1,13 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="src/style.css">
+    <meta charset="utf-8" />
+    <link rel="icon" href="./favicon.ico" /> <!-- Certifique-se de que o favicon.ico esteja na pasta 'build' -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Glossário de League of Legends"
+    />
+    <link rel="apple-touch-icon" href="./logo192.png" /> <!-- Certifique-se de que logo192.png esteja na pasta 'build' -->
+    <!--
+      manifest.json fornece metadados usados pelo seu navegador ou dispositivo móvel.
+      Para mais detalhes, consulte https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="./manifest.json" /> <!-- Certifique-se de que manifest.json esteja na pasta 'build' -->
+    <!--
+      Observe o uso de %PUBLIC_URL% no HTML durante o processo de build.
+      Ele será substituído pela URL da pasta `public` durante o build.
+      Somente arquivos dentro da pasta `public` podem ser referenciados a partir do HTML.
+
+      Ao contrário de "/favicon.ico" ou "favicon.ico", "./favicon.ico"
+      funciona tanto com roteamento do lado do cliente como com um caminho de URL não-raiz.
+      Saiba mais sobre como configurar um caminho de URL não-raiz aqui:
+      https://facebook.github.io/create-react-app/docs/deployment#serving-apps-from-a-non-root-pathname
+    -->
+    <title>Glossário de League of Legends</title>
+    <!-- Os arquivos CSS compilados serão injetados aqui automaticamente pelo build -->
+    <!-- Exemplo: <link href="./static/css/main.css" rel="stylesheet"> -->
   </head>
   <body>
+    <noscript>Você precisa habilitar o JavaScript para rodar esta aplicação.</noscript>
     <div id="root"></div>
+    <!--
+      Este arquivo HTML é um template.
+      Se você abrir diretamente no navegador, verá uma página vazia.
 
-    <script src="src/index.jsx"></script>
+      Você pode adicionar webfonts, meta tags ou análises a este arquivo.
+      O passo de build irá colocar os scripts agrupados no corpo da tag.
+
+      Para começar o desenvolvimento, execute `npm start` ou `yarn start`.
+      Para criar um build de produção, execute `npm run build` ou `yarn build`.
+    -->
+    <!-- Os arquivos JavaScript compilados serão injetados aqui automaticamente pelo build -->
+    <!-- Exemplo: <script src="./static/js/main.js"></script> -->
   </body>
 </html>
