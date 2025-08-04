@@ -1,48 +1,505 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="./favicon.ico" /> <!-- Certifique-se de que o favicon.ico esteja na pasta 'build' -->
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Glossário de League of Legends"
-    />
-    <link rel="apple-touch-icon" href="./logo192.png" /> <!-- Certifique-se de que logo192.png esteja na pasta 'build' -->
-    <!--
-      manifest.json fornece metadados usados pelo seu navegador ou dispositivo móvel.
-      Para mais detalhes, consulte https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="./manifest.json" /> <!-- Certifique-se de que manifest.json esteja na pasta 'build' -->
-    <!--
-      Observe o uso de %PUBLIC_URL% no HTML durante o processo de build.
-      Ele será substituído pela URL da pasta `public` durante o build.
-      Somente arquivos dentro da pasta `public` podem ser referenciados a partir do HTML.
-
-      Ao contrário de "/favicon.ico" ou "favicon.ico", "./favicon.ico"
-      funciona tanto com roteamento do lado do cliente como com um caminho de URL não-raiz.
-      Saiba mais sobre como configurar um caminho de URL não-raiz aqui:
-      https://facebook.github.io/create-react-app/docs/deployment#serving-apps-from-a-non-root-pathname
-    -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glossário de League of Legends</title>
-    <!-- Os arquivos CSS compilados serão injetados aqui automaticamente pelo build -->
-    <!-- Exemplo: <link href="./static/css/main.css" rel="stylesheet"> -->
-  </head>
-  <body>
-    <noscript>Você precisa habilitar o JavaScript para rodar esta aplicação.</noscript>
-    <div id="root"></div>
-    <!--
-      Este arquivo HTML é um template.
-      Se você abrir diretamente no navegador, verá uma página vazia.
+    <!-- Inclui o Tailwind CSS via CDN para os estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos globais para o corpo da página, garantindo que o fundo se estenda */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: 'Inter', sans-serif; /* Usando a fonte Inter */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #F0F0F0; /* Fundo muito claro */
+            overflow-x: hidden; /* Evita rolagem horizontal indesejada */
+            color: #333333; /* Cor do texto principal (cinzento escuro) */
+        }
 
-      Você pode adicionar webfonts, meta tags ou análises a este arquivo.
-      O passo de build irá colocar os scripts agrupados no corpo da tag.
+        /* Estilos para a barra de cabeçalho */
+        header {
+            background-color: #222222; /* Cinzento muito escuro/preto */
+            color: #FFFFFF; /* Branco */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding-top: 0.75rem; /* py-3 */
+            padding-bottom: 0.75rem; /* py-3 */
+        }
 
-      Para começar o desenvolvimento, execute `npm start` ou `yarn start`.
-      Para criar um build de produção, execute `npm run build` ou `yarn build`.
-    -->
-    <!-- Os arquivos JavaScript compilados serão injetados aqui automaticamente pelo build -->
-    <!-- Exemplo: <script src="./static/js/main.js"></script> -->
-  </body>
+        /* Estilos para o título do cabeçalho */
+        header h1 {
+            font-size: 1.25rem; /* text-xl */
+            line-height: 1.75rem;
+            font-weight: 700; /* font-bold */
+            color: white; /* text-white */
+            text-align: center; /* text-center */
+        }
+
+        /* Estilos para a seção principal do conteúdo */
+        main {
+            padding: 1rem; /* p-4 */
+        }
+        @media (min-width: 768px) { /* md:p-8 */
+            main {
+                padding: 2rem;
+            }
+        }
+
+        /* Estilos para o contêiner do glossário */
+        .content-section > div {
+            background-color: rgba(255, 255, 255, 0.8); /* Branco com transparência */
+            padding: 1.5rem; /* p-6 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* shadow-md */
+        }
+
+        /* Estilos para o título do glossário */
+        .content-section h2 {
+            font-size: 1.875rem; /* text-3xl */
+            line-height: 2.25rem;
+            font-weight: 700; /* font-bold */
+            color: #000000; /* Preto */
+            margin-bottom: 1rem; /* mb-4 */
+        }
+
+        /* Estilos para o parágrafo de descrição */
+        .content-section p {
+            margin-bottom: 1rem; /* mb-4 */
+        }
+
+        /* Estilos para o campo de busca */
+        #glossary-search {
+            width: 100%; /* w-full */
+            padding: 0.5rem; /* p-2 */
+            border: 1px solid #AAAAAA; /* Cinzento médio */
+            border-radius: 0.5rem; /* rounded-lg */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        #glossary-search:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(100, 100, 100, 0.5); /* Anel de foco cinzento */
+            border-color: transparent; /* focus:border-transparent */
+        }
+
+        /* Estilos para a lista de termos do glossário */
+        #glossary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* space-y-4 */
+        }
+
+        /* Estilos para cada item do glossário */
+        #glossary-list > div {
+            background-color: #FFFFFF; /* Branco */
+            padding: 1rem; /* p-4 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); /* shadow-sm */
+            border: 1px solid #CCCCCC; /* Borda cinzenta clara */
+        }
+
+        /* Estilos para o termo do glossário */
+        #glossary-list h3 {
+            font-weight: 700; /* font-bold */
+            color: #000000; /* Preto */
+        }
+
+        /* Estilos para a definição do glossário */
+        #glossary-list p {
+            margin-top: 0.25rem; /* mt-1 */
+        }
+
+        /* Estilo para quando nenhum termo é encontrado */
+        .text-center {
+            text-align: center;
+        }
+        .text-gray-500 {
+            color: #666666; /* Cinzento médio */
+        }
+        .italic {
+            font-style: italic;
+        }
+        .mt-8 {
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container mx-auto px-6">
+            <h1>Glossário de League of Legends</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto">
+        <section id="glossary" class="content-section">
+            <div>
+                <h2>Glossário Essencial</h2>
+                <p>A linguagem de League of Legends é rica em termos específicos. Use a busca abaixo para encontrar rapidamente a definição de qualquer jargão do jogo.</p>
+                <input
+                    type="text"
+                    id="glossary-search"
+                    placeholder="Buscar termo..."
+                />
+                <div id="glossary-list">
+                    <!-- Termos do glossário serão renderizados aqui pelo JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Dados do glossário
+        const glossaryData = [
+            { term: "Split Push", definition: "A estratégia de um campeão que empurra uma rota lateral sozinho para criar pressão e forçar os inimigos a se dividirem." },
+            { term: "Gank", definition: "Um ataque surpresa de um campeão a uma rota que não é a sua, geralmente para ajudar um aliado a garantir uma eliminação." },
+            { term: "Farm", definition: "A aquisição de ouro e experiência ao dar o 'last-hit' em tropas e monstros." },
+            { term: "Peel", definition: "Ação de proteger um aliado de alto valor (como um atirador) afastando os campeões inimigos." },
+            { term: "CC (Crowd Control)", definition: "Habilidades que limitam a movimentação ou ações de campeões inimigos, como stuns e slows." },
+            { term: "Macro", definition: "Estratégia e tomada de decisão de alto nível, incluindo controle de objetivos e rotação pelo mapa." },
+            { term: "Micro", definition: "A proficiência mecânica de um jogador com seu campeão, incluindo combos, last-hitting e esquiva de habilidades." },
+            { term: "Barão (Baron)", definition: "Um objetivo épico que concede um buff poderoso ao time que o abate, fortalecendo as tropas e dando bônus de dano de ataque e poder de habilidade." },
+            { term: "Dragão (Dragon)", definition: "Objetivos épicos que concedem bônus permanentes e um 'Alma de Dragão' ao time que os abate." },
+            { term: "Herald (Arauto)", definition: "Um objetivo épico que pode ser usado para dar um grande impulso ao empurrar uma rota, especialmente para derrubar torres." },
+            { term: "Wave Management", definition: "A arte de manipular a posição e o tamanho da onda de minions na rota para criar uma vantagem estratégica." },
+            { term: "Poke", definition: "Causar dano a distância ao inimigo para enfraquecê-lo antes de uma luta ou para forçá-lo a recuar." },
+            { term: "Engage", definition: "Ato de iniciar uma luta de equipe, geralmente com habilidades de controle de grupo ou alto impacto." },
+            { term: "Disengage", definition: "Ato de se afastar de uma luta ou impedir que o inimigo inicie, usando habilidades de controle de grupo ou movimento." },
+            { term: "Scaling", definition: "A capacidade de um campeão se tornar mais forte e influente à medida que o jogo avança e ele adquire mais ouro, experiência e itens." },
+            { term: "Burst", definition: "A capacidade de um campeão causar uma grande quantidade de dano em um curto período de tempo, geralmente para abater um inimigo rapidamente." },
+            { term: "Snowball", definition: "O efeito de bola de neve, onde uma pequena vantagem inicial (como uma eliminação ou objetivo) se transforma em uma vantagem cada vez maior, tornando o time mais forte." },
+            { term: "Zoning", definition: "Ato de controlar uma área do mapa ou uma rota, impedindo que os inimigos se aproximem para farmar ou participar de lutas." },
+            { term: "Roam", definition: "Ato de um campeão sair de sua rota para ajudar outras rotas ou participar de objetivos no mapa." },
+            { term: "Trade", definition: "Uma troca de dano ou recursos entre dois ou mais campeões na rota." },
+            { term: "CC Chain", definition: "Uma sequência de habilidades de controle de grupo aplicadas a um inimigo, mantendo-o incapacitado por um longo período." },
+            { term: "Vision Control", definition: "A estratégia de colocar e remover sentinelas para obter e negar visão do mapa, crucial para a tomada de decisões." },
+            { term: "Kiting", definition: "Técnica de atacar um inimigo enquanto se move para trás, mantendo distância e evitando ser atingido." },
+            { term: "Laning Phase", definition: "A fase inicial do jogo onde os jogadores se concentram em farmar e trocar dano em suas respectivas rotas." },
+            { term: "Mid-Game", definition: "A fase intermediária do jogo, geralmente após a fase de rotas, onde as equipes começam a agrupar-se para objetivos e lutas." },
+            { term: "Late-Game", definition: "A fase final do jogo, onde os campeões estão com suas builds completas e as lutas de equipe são decisivas." },
+            { term: "Backdoor", definition: "Estratégia de um campeão que ataca diretamente as estruturas inimigas (torres, inibidor, Nexus) sem a ajuda de minions ou do time." },
+            { term: "Picks & Bans (P&B)", definition: "A fase antes do jogo onde as equipes escolhem e banem campeões, definindo as composições de ambos os times." },
+            { term: "Meta", definition: "A estratégia, campeões e itens mais eficazes e populares em um determinado momento do jogo." },
+            { term: "Counter-Pick", definition: "Escolher um campeão que tem uma vantagem natural sobre o campeão inimigo na mesma rota." },
+            { term: "Power Spike", definition: "Um momento no jogo onde um campeão se torna significativamente mais forte, geralmente ao atingir um certo nível ou completar um item." },
+            { term: "CS (Creep Score)", definition: "O número de minions e monstros neutros que um jogador abateu, diretamente relacionado ao seu farm e ouro." },
+            { term: "Roaming Support", definition: "Um suporte que não permanece apenas na rota inferior, mas se move pelo mapa para ajudar outras rotas ou o caçador." },
+            { term: "Invade", definition: "Quando uma equipe entra na selva inimiga no início do jogo para roubar acampamentos ou tentar uma eliminação surpresa." },
+            { term: "Dive", definition: "Atacar um inimigo sob a torre dele, aceitando o dano da torre para garantir a eliminação." },
+            { term: "Flank", definition: "Posicionar-se nas laterais ou por trás do inimigo em uma luta de equipe para surpreendê-los ou atingir alvos prioritários." },
+            { term: "KDA (Kills/Deaths/Assists)", definition: "Uma estatística que mostra a proporção de abates, mortes e assistências de um jogador, indicando seu desempenho." },
+            { term: "Gank Pathing", definition: "A rota específica que um caçador usa para se aproximar de uma rota para um gank, evitando sentinelas." },
+            { term: "Proxy Farm", definition: "Farmar ondas de minions entre as torres inimigas, geralmente feito por campeões com alta mobilidade e sustain." },
+            { term: "Face Check", definition: "Entrar em um arbusto ou área sem visão para verificar se há inimigos, o que é arriscado." },
+            { term: "Brush Control", definition: "Ato de controlar os arbustos no mapa com visão ou presença para emboscar ou evitar emboscadas." },
+            { term: "Lulu-ing", definition: "Termo informal para descrever a ação de um suporte (especialmente Lulu) de proteger e buffar intensamente um carry." },
+            { term: "One-Shot", definition: "Abater um inimigo com uma única combinação de habilidades ou um ataque muito rápido e poderoso." },
+            { term: "Outplay", definition: "Superar um oponente em uma jogada individual, usando mecânicas e inteligência para virar uma situação desfavorável." },
+            { term: "Penta Kill", definition: "Abater todos os cinco campeões inimigos em um curto período de tempo." },
+            { term: "Triple Kill", definition: "Abater três campeões inimigos em um curto período de tempo." },
+            { term: "Quadra Kill", definition: "Abater quatro campeões inimigos em um curto período de tempo." },
+            { term: "Ace", definition: "Quando todos os cinco campeões inimigos são abatidos, deixando o time inimigo sem defesas." },
+            { term: "FF (Forfeit)", definition: "Rendição, geralmente votada pela equipe para encerrar a partida." },
+            { term: "GG (Good Game)", definition: "Expressão usada no final da partida para indicar um bom jogo, independentemente do resultado." },
+            { term: "WP (Well Played)", definition: "Expressão usada para elogiar uma boa jogada ou desempenho." },
+            { term: "AFK (Away From Keyboard)", definition: "Quando um jogador está ausente do teclado e não está jogando." },
+            { term: "Inting (Intentionally Feeding)", definition: "Quando um jogador morre intencionalmente para o inimigo, geralmente para prejudicar o próprio time." },
+            { term: "Flaming", definition: "Criticar ou insultar outros jogadores de forma agressiva." },
+            { term: "Tilt", definition: "Estado emocional negativo que afeta o desempenho de um jogador, geralmente causado por frustração ou raiva." },
+            { term: "KDA Player", definition: "Termo pejorativo para um jogador que prioriza manter um bom KDA em vez de fazer jogadas arriscadas ou necessárias para o time." },
+            { term: "Hard Carry", definition: "Um campeão ou jogador que tem o potencial de carregar o jogo sozinho no late game." },
+            { term: "Soft Carry", definition: "Um campeão ou jogador que contribui significativamente para a vitória, mas não é o principal responsável por carregar o jogo." },
+            { term: "Tanky", definition: "Um campeão com alta durabilidade (vida, armadura, resistência mágica)." },
+            { term: "Squishy", definition: "Um campeão com baixa durabilidade, fácil de ser abatido." },
+            { term: "CC Immune", definition: "Imune a efeitos de controle de grupo." },
+            { term: "True Damage", definition: "Dano que ignora armadura e resistência mágica." },
+            { term: "AD (Attack Damage)", definition: "Dano físico, geralmente de ataques básicos e algumas habilidades." },
+            { term: "AP (Ability Power)", definition: "Poder de habilidade, geralmente de habilidades mágicas." },
+            { term: "CDR (Cooldown Reduction)", definition: "Redução do tempo de recarga das habilidades (agora chamado de Haste de Habilidade)." },
+            { term: "Lifesteal", definition: "Roubo de vida, cura baseada no dano físico causado." },
+            { term: "Spell Vamp", definition: "Roubo de feitiço, cura baseada no dano de habilidade causado (agora integrado a outras fontes de cura)." },
+            { term: "Omnivamp", definition: "Cura baseada em todo o dano causado (físico, mágico, verdadeiro)." },
+            { term: "Tenacity", definition: "Tenacidade, reduz a duração de efeitos de controle de grupo." },
+            { term: "HP (Health Points)", definition: "Pontos de vida." },
+            { term: "MP (Mana Points)", definition: "Pontos de mana." },
+            { term: "TP (Teleport)", definition: "Feitiço de invocador Teleporte." },
+            { term: "Ignite", definition: "Feitiço de invocador Incendiar." },
+            { term: "Flash", definition: "Feitiço de invocador Flash." },
+            { term: "Smite", definition: "Feitiço de invocador Golpear." },
+            { term: "Cleanse", definition: "Feitiço de invocador Purificar." },
+            { term: "Exhaust", definition: "Feitiço de invocador Exaustão." },
+            { term: "Heal", definition: "Feitiço de invocador Curar." },
+            { term: "Barrier", definition: "Feitiço de invocador Barreira." },
+            { term: "Ghost", definition: "Feitiço de invocador Fantasma." },
+            { term: "Clarity", definition: "Feitiço de invocador Clareza (removido do jogo)." },
+            { term: "Revive", definition: "Feitiço de invocador Reviver (removido do jogo)." },
+            { term: "Global Ultimate", definition: "Habilidade ultimate que pode ser usada em qualquer lugar do mapa (ex: Ashe R, Ezreal R)." },
+            { term: "Teamfight", definition: "Uma luta em grande escala entre a maioria ou todos os campeões de ambas as equipes." },
+            { term: "Objective Control", definition: "A estratégia de focar em garantir objetivos neutros como Dragões, Barão e Arauto." },
+            { term: "Pushing Lane", definition: "Ato de empurrar a onda de minions para a torre inimiga." },
+            { term: "Freezing Lane", definition: "Manter a onda de minions parada perto da sua torre para negar farm ao inimigo." },
+            { term: "Slow Push", definition: "Criar uma grande onda de minions que empurra lentamente a rota, acumulando pressão." },
+            { term: "Fast Push", definition: "Limpar rapidamente uma onda de minions para empurrar a rota rapidamente." },
+            { term: "Minion Wave", definition: "Um grupo de minions que avança pela rota." },
+            { term: "Last Hit", definition: "Dar o golpe final em um minion ou monstro para receber ouro e experiência." },
+            { term: "Jungle Clear", definition: "A rota e a eficiência com que um caçador limpa os acampamentos da selva." },
+            { term: "Counter-Jungle", definition: "Invadir a selva inimiga para roubar acampamentos ou tentar abater o caçador inimigo." },
+            { term: "Ward", definition: "Sentinela, um item que concede visão de uma área do mapa." },
+            { term: "Control Ward (Pink Ward)", definition: "Sentinela de Controle, uma sentinela visível que revela e desativa sentinelas invisíveis e unidades camufladas." },
+            { term: "Sweeper (Oracle Lens)", definition: "Lente do Oráculo, um item de trinket que revela e desativa sentinelas e armadilhas em uma área." },
+            { term: "Trinket", definition: "Item gratuito que pode ser trocado na loja, como sentinelas ou lentes do oráculo." },
+            { term: "Early Game Gank", definition: "Um gank realizado nos primeiros minutos do jogo." },
+            { term: "Mid Game Power Spike", definition: "O pico de poder de um campeão no meio do jogo." },
+            { term: "Late Game Carry", definition: "Um campeão que se torna extremamente poderoso no final do jogo e é capaz de carregar o time." },
+            { term: "Lane Priority", definition: "Quando uma rota tem a capacidade de empurrar a onda de minions e se mover para ajudar em outras áreas do mapa." },
+            { term: "Matchup", definition: "A comparação entre dois campeões que se enfrentam na mesma rota, considerando suas forças e fraquezas." },
+            { term: "Out-of-Position (OOP)", definition: "Quando um jogador está em uma posição desfavorável, longe da segurança de seu time ou torre, tornando-se um alvo fácil." },
+            { term: "Punish", definition: "Ato de tirar vantagem de um erro do inimigo, como uma má posição ou uma habilidade em cooldown." },
+            { term: "Rotation", definition: "O movimento coordenado dos jogadores pelo mapa para responder a objetivos ou criar pressão." },
+            { term: "Siege", definition: "Estratégia de cercar uma torre inimiga e atacá-la de forma segura, sem se expor a um engage." },
+            { term: "Stall", definition: "Ato de atrasar o jogo para permitir que seu time escale ou para esperar por um objetivo importante." },
+            { term: "Tempo", definition: "A velocidade com que uma equipe consegue realizar ações no mapa e criar vantagens." },
+            { term: "Ward Hop", definition: "Usar uma habilidade de mobilidade (como o W do Lee Sin) em uma sentinela para atravessar paredes." },
+            { term: "Zone Control Mage", definition: "Um mago que usa habilidades de área para controlar o espaço e impedir a movimentação inimiga." },
+            { term: "Initiator", definition: "Um campeão especializado em iniciar lutas de equipe." },
+            { term: "Disruptor", definition: "Um campeão que atrapalha as formações ou planos inimigos com controle de grupo ou dano em área." },
+            { term: "Enchanter", definition: "Um suporte que foca em buffar aliados com escudos, curas e buffs de estatísticas." },
+            { term: "Tank", definition: "Um campeão com alta durabilidade, projetado para absorver dano e proteger seus aliados." },
+            { term: "Bruiser", definition: "Um campeão que combina durabilidade com dano, capaz de lutar na linha de frente e causar impacto." },
+            { term: "Assassin", definition: "Um campeão especializado em abater alvos de alta prioridade rapidamente." },
+            { term: "Marksman (ADC)", definition: "Um campeão de dano de ataque à distância, que causa a maior parte do dano físico do time." },
+            { term: "Mage", definition: "Um campeão que causa dano mágico com habilidades." },
+            { term: "Fighter", definition: "Termo mais amplo que engloba bruisers e alguns assassinos, focados em combate corpo a corpo." },
+            { term: "Skirmisher", definition: "Um campeão que se destaca em duelos e pequenas lutas, com alta mobilidade e dano." },
+            { term: "Pusher", definition: "Um campeão com habilidades que o tornam muito eficiente em empurrar rotas e derrubar torres." },
+            { term: "Utility", definition: "A capacidade de um campeão de fornecer benefícios ao time além do dano, como controle de grupo, escudos ou curas." },
+            { term: "CC (Crowd Control) Resist", definition: "Resistência a efeitos de controle de grupo." },
+            { term: "Grievous Wounds", definition: "Feridas dolorosas, efeito que reduz a cura e a regeneração de vida." },
+            { term: "Adaptive Force", definition: "Força adaptativa, estatística que se converte em dano de ataque ou poder de habilidade, dependendo do que você tem mais." },
+            { term: "Crit Chance", definition: "Chance de acerto crítico, a probabilidade de seus ataques causarem dano crítico." },
+            { term: "Lethality", definition: "Letalidade, estatística que concede penetração de armadura baseada no nível do inimigo." },
+            { term: "Magic Penetration", definition: "Penetração mágica, estatística que ignora a resistência mágica do inimigo." },
+            { term: "Armor Penetration", definition: "Penetração de armadura, estatística que ignora a armadura do inimigo." },
+            { term: "Omnivamp", definition: "Onivampirismo, roubo de vida universal que funciona com todo tipo de dano." },
+            { term: "Sustain", definition: "A capacidade de um campeão de se manter na rota ou em lutas através de cura ou escudos." },
+            { term: "Early Game", definition: "Fase inicial do jogo (0-15 minutos), focada em farm e trocas na rota." },
+            { term: "Mid Game", definition: "Fase intermediária do jogo (15-30 minutos), focada em objetivos e lutas em grupo." },
+            { term: "Late Game", definition: "Fase final do jogo (30+ minutos), onde as decisões e teamfights são mais decisivas." },
+            { term: "Baron Nashor", definition: "Monstro épico que concede o buff Barão, fortalecendo tropas e concedendo bônus de combate." },
+            { term: "Elder Dragon", definition: "Dragão Ancião, monstro épico que concede um buff de dano verdadeiro e execução a inimigos com pouca vida." },
+            { term: "Herald (Rift Herald)", definition: "Arauto do Vale, monstro épico que pode ser invocado para empurrar uma rota e derrubar torres." },
+            { term: "Inhibitor", definition: "Inibidor, estrutura que, quando destruída, gera super minions para o seu time naquela rota." },
+            { term: "Nexus", definition: "A estrutura principal na base de cada equipe; destruir o Nexus inimigo resulta na vitória." },
+            { term: "Turret (Tower)", definition: "Torre, estrutura defensiva que ataca inimigos próximos." },
+            { term: "Minions", definition: "Unidades controladas pela IA que avançam pelas rotas, fornecendo ouro e experiência ao serem abatidas." },
+            { term: "Jungle Camps", definition: "Acampamentos de monstros neutros na selva que fornecem ouro e experiência." },
+            { term: "Buffs (Red/Blue)", definition: "Bônus temporários concedidos ao abater os monstros do Buff Vermelho (dano e lentidão) e Buff Azul (regeneração de mana e aceleração de habilidade)." },
+            { term: "Scuttle Crab", definition: "Aronguejo, monstro neutro que concede visão e velocidade de movimento na área do rio." },
+            { term: "Dragon Soul", definition: "Alma de Dragão, bônus permanente concedido à equipe que abate quatro dragões elementais diferentes." },
+            { term: "Baron Buff", definition: "O buff concedido pelo Barão Nashor." },
+            { term: "Elder Buff", definition: "O buff concedido pelo Dragão Ancião." },
+            { term: "Lane Swap", definition: "Quando os jogadores trocam de rota no início do jogo para obter uma vantagem estratégica." },
+            { term: "Fast Push", definition: "Estratégia de limpar rapidamente uma onda de minions para empurrar a rota rapidamente." },
+            { term: "Slow Push", definition: "Estratégia de permitir que uma onda de minions cresça lentamente para criar uma super-onda." },
+            { term: "Freeze", definition: "Manter a onda de minions inimiga perto da sua torre sem que ela seja atacada por ela." },
+            { term: "Deny Farm", definition: "Impedir que o inimigo abata minions para negar-lhe ouro e experiência." },
+            { term: "CS Lead", definition: "Ter uma vantagem no número de minions abatidos sobre o inimigo." },
+            { term: "Gold Lead", definition: "Ter uma vantagem em ouro sobre o inimigo." },
+            { term: "XP Lead", definition: "Ter uma vantagem em experiência (nível) sobre o inimigo." },
+            { term: "Vision Score", definition: "Pontuação que mede a contribuição de um jogador para a visão do mapa." },
+            { term: "Pink Ward", definition: "Antigo nome da Sentinela de Controle." },
+            { term: "Oracle Elixir", definition: "Antigo item que revelava unidades invisíveis (substituído pela Lente do Oráculo)." },
+            { term: "Force of Nature", definition: "Antigo item de resistência mágica (reworkado e reintroduzido)." },
+            { term: "Warmog's Armor", definition: "Item de vida que concede grande regeneração fora de combate." },
+            { term: "Thornmail", definition: "Armadura de Espinhos, item que reflete dano e aplica feridas dolorosas." },
+            { term: "Spirit Visage", definition: "Semblante Espiritual, item de resistência mágica que aumenta a cura e escudos recebidos." },
+            { term: "Sunfire Cape", definition: "Capa de Fogo Solar, item de armadura que causa dano mágico em área contínuo." },
+            { term: "Frozen Heart", definition: "Coração Congelado, item de armadura que reduz a velocidade de ataque de inimigos próximos." },
+            { term: "Iceborn Gauntlet", definition: "Manopla dos Glacinatas, item que cria um campo de lentidão e causa dano após usar uma habilidade." },
+            { term: "Trinity Force", definition: "Força da Trindade, item que concede dano, velocidade de ataque, vida e um buff de dano após usar uma habilidade." },
+            { term: "Sterak's Gage", definition: "Medalhão do Solari, item que concede um escudo quando a vida de um campeão cai." },
+            { term: "Guardian Angel", definition: "Anjo Guardião, item que ressuscita o campeão após ser abatido." },
+            { term: "Infinity Edge", definition: "Gume do Infinito, item que aumenta o dano crítico." },
+            { term: "Phantom Dancer", definition: "Dançarina Fantasma, item que concede velocidade de ataque, chance de crítico e um escudo." },
+            { term: "Rapid Firecannon", definition: "Canhão Fumegante, item que aumenta o alcance de ataque e o dano de um ataque carregado." },
+            { term: "Statikk Shiv", definition: "Faca de Statikk, item que causa dano mágico em área com ataques carregados (removido do jogo, mas conceito similar reintroduzido)." },
+            { term: "Last Whisper", definition: "Último Sussurro, item que concede penetração de armadura." },
+            { term: "Lord Dominik's Regards", definition: "Lembrança do Lorde Dominik, upgrade do Último Sussurro com dano adicional contra alvos com mais vida." },
+            { term: "Mortal Reminder", definition: "Lembrete Mortal, upgrade do Último Sussurro que aplica feridas dolorosas." },
+            { term: "Essence Reaver", definition: "Colhedor de Essência, item que concede dano, chance de crítico e restaura mana ao usar habilidades." },
+            { term: "Bloodthirster", definition: "Sedenta por Sangue, item que concede dano, roubo de vida e um escudo." },
+            { term: "Blade of the Ruined King (BotRK)", definition: "Lâmina do Rei Destruído, item que causa dano com base na vida atual do inimigo e roubo de vida." },
+            { term: "Manamune (Muramana)", definition: "Manamune, item de mana que se transforma em Muramana, causando dano adicional com ataques e habilidades." },
+            { term: "Seraph's Embrace (Archangel's Staff)", definition: "Abraço de Seraph, item de mana que se transforma em Abraço de Seraph, concedendo um escudo." },
+            { term: "Luden's Echo (Luden's Tempest)", definition: "Eco de Luden, item de poder de habilidade que causa dano em área adicional ao usar habilidades." },
+            { term: "Zhonya's Hourglass", definition: "Ampulheta de Zhonya, item de poder de habilidade que permite ao campeão ficar invulnerável por um curto período." },
+            { term: "Rabadon's Deathcap", definition: "Capuz da Morte de Rabadon, item de poder de habilidade que aumenta significativamente todo o poder de habilidade." },
+            { term: "Void Staff", definition: "Cajado do Vazio, item de poder de habilidade que concede penetração mágica." },
+            { term: "Morellonomicon", definition: "Morellonomicon, item de poder de habilidade que aplica feridas dolorosas." },
+            { term: "Liandry's Torment", definition: "Tormento de Liandry, item de poder de habilidade que causa dano contínuo e dano adicional a alvos com mais vida." },
+            { term: "Hextech Rocketbelt", definition: "Cinto-Foguete Hextec, item de poder de habilidade que concede um dash e causa dano." },
+            { term: "Protobelt", definition: "Antigo nome do Cinto-Foguete Hextec." },
+            { term: "Mejai's Soulstealer", definition: "Ladrão de Almas de Mejai, item que ganha poder de habilidade ao abater ou assistir abates, mas perde ao morrer." },
+            { term: "Dark Seal", definition: "Selo Sombrio, item inicial que pode ser transformado em Mejai's." },
+            { term: "Banshee's Veil", definition: "Véu da Banshee, item de resistência mágica que concede um escudo de feitiço." },
+            { term: "Spirit Visage", definition: "Semblante Espiritual, item de resistência mágica que aumenta a cura recebida." },
+            { term: "Adaptive Helm", definition: "Elmo Adaptativo, item de resistência mágica que reduz o dano de habilidades repetidas (removido do jogo)." },
+            { term: "Gargoyle Stoneplate", definition: "Placa Gargolítica, item de armadura e resistência mágica que concede um escudo gigante em lutas." },
+            { term: "Knight's Vow", definition: "Juramento do Cavaleiro, item de suporte que redireciona parte do dano recebido por um aliado para o usuário." },
+            { term: "Zeke's Convergence", definition: "Convergência de Zeke, item de suporte que concede bônus de dano e lentidão ao aliado linkado após usar o ultimate." },
+            { term: "Redemption", definition: "Redenção, item de suporte que cura aliados e causa dano a inimigos em uma área grande." },
+            { term: "Ardent Censer", definition: "Incensário Ardente, item de suporte que concede velocidade de ataque e dano mágico adicional a aliados curados ou escudados." },
+            { term: "Mikael's Blessing", definition: "Benção de Mikael, item de suporte que remove efeitos de controle de grupo de um aliado." },
+            { term: "Shurelya's Battlesong", definition: "Canção de Batalha de Shurelya, item de suporte que concede velocidade de movimento a aliados próximos ao usar habilidades." },
+            { term: "Locket of the Iron Solari", definition: "Medalhão Solari de Ferro, item de suporte que concede um escudo em área a aliados." },
+            { term: "Twin Shadows", definition: "Sombras Gêmeas, item de poder de habilidade que invoca fantasmas para revelar e retardar inimigos (removido do jogo)." },
+            { term: "Zz'Rot Portal", definition: "Portal Zz'Rot, item que gerava vácuos para empurrar rotas (removido do jogo)." },
+            { term: "Ohmwrecker", definition: "Demolidor, item que permitia desativar torres (removido do jogo)." },
+            { term: "Banner of Command", definition: "Estandarte de Comando, item que fortalecia um minion para empurrar rotas (removido do jogo)." },
+            { term: "Sightstone", definition: "Pedra da Visão, item de suporte que fornecia sentinelas (removido do jogo)." },
+            { term: "Ruby Sightstone", definition: "Pedra da Visão Rubi, upgrade da Sightstone (removido do jogo)." },
+            { term: "Feral Flare", definition: "Chama Selvagem, item de caçador que escalava com abates de monstros (removido do jogo)." },
+            { term: "Devourer", definition: "Devorador, item de caçador que escalava com abates de monstros (substituído por Sated Devourer, depois removido)." },
+            { term: "Sated Devourer", definition: "Devorador Saciado, upgrade do Devorador que concedia um 'phantom hit' a cada dois ataques (removido do jogo)." },
+            { term: "Runeglaive", definition: "Lâmina Rúnica, item de caçador AP (removido do jogo)." },
+            { term: "Cinderhulk", definition: "Cinderhulk, item de caçador tanque (ainda existe, mas o nome pode ser menos comum para iniciantes)." },
+            { term: "Warrior", definition: "Guerreiro, item de caçador AD (ainda existe, mas o nome pode ser menos comum para iniciantes)." },
+            { term: "Runic Echoes", definition: "Ecos Rúnicos, item de caçador AP (ainda existe, mas o nome pode ser menos comum para iniciantes)." },
+            { term: "Skirmisher's Sabre", definition: "Sabre do Perseguidor, item de caçador que concede dano verdadeiro no Smite (ainda existe, mas o nome pode ser menos comum para iniciantes)." },
+            { term: "Tracker's Knife", definition: "Faca do Rastreador, item de caçador que concedia sentinelas (removido do jogo)." },
+            { term: "Poacher's Knife", definition: "Faca do Caçador, item de caçador focado em roubar a selva inimiga (removido do jogo)." },
+            { term: "Fountain", definition: "Fonte, a área de cura na base de cada equipe." },
+            { term: "Base Race", definition: "Uma corrida para destruir o Nexus inimigo enquanto o inimigo tenta fazer o mesmo na sua base." },
+            { term: "Backdoor Protection", definition: "Mecanismo do jogo que aumenta a resistência das torres e do Nexus quando não há minions inimigos por perto." },
+            { term: "Minion Dematerializer", definition: "Desmaterializador de Tropas, runa que permite abater instantaneamente minions para ganhar bônus." },
+            { term: "Future's Market", definition: "Mercado do Futuro, runa que permite pegar empréstimos de ouro." },
+            { term: "Perfect Timing", definition: "Sincronia Perfeita, runa que concede um Zhonya's Hourglass ou um item similar com desconto." },
+            { term: "Cosmic Insight", definition: "Perspicácia Cósmica, runa que concede aceleração de item e feitiço de invocador." },
+            { term: "Magical Footwear", definition: "Calçados Mágicos, runa que concede botas gratuitas e bônus de velocidade de movimento." },
+            { term: "Bone Plating", definition: "Osso Revestido, runa que reduz o dano dos próximos ataques inimigos." },
+            { term: "Overgrowth", definition: "Crescimento Excessivo, runa que concede vida adicional ao abater monstros ou minions próximos." },
+            { term: "Unflinching", definition: "Inabalável, runa que concede tenacidade e resistência a lentidão." },
+            { term: "Revitalize", definition: "Revitalizar, runa que aumenta a cura e escudos recebidos e aplicados." },
+            { term: "Font of Life", definition: "Fonte da Vida, runa que marca inimigos com CC, curando aliados que os atacam." },
+            { term: "Guardian", definition: "Guardião, runa que concede um escudo a aliados próximos ao receber dano." },
+            { term: "Aftershock", definition: "Pós-choque, runa que concede armadura e resistência mágica após imobilizar um inimigo, causando dano explosivo." },
+            { term: "Grasp of the Undying", definition: "Aperto dos Mortos-Vivos, runa que causa dano mágico e cura ao atacar um campeão inimigo após um tempo em combate." },
+            { term: "Demolish", definition: "Demolir, runa que permite causar dano adicional a torres após carregar um ataque." },
+            { term: "Conditioning", definition: "Condicionamento, runa que concede armadura e resistência mágica adicionais após um tempo de jogo." },
+            { term: "Overheal", definition: "Cura Excessiva, runa que converte cura excedente em um escudo." },
+            { term: "Triumph", definition: "Triunfo, runa que cura e concede ouro adicional ao abater um campeão." },
+            { term: "Legend: Tenacity", definition: "Lenda: Tenacidade, runa que concede tenacidade adicional por abates de campeões e monstros épicos." },
+            { term: "Legend: Alacrity", definition: "Lenda: Lenda: Espontaneidade, runa que concede velocidade de ataque adicional por abates de campeões e monstros épicos." },
+            { term: "Legend: Bloodline", definition: "Lenda: Linhagem, runa que concede roubo de vida adicional por abates de campeões e monstros épicos." },
+            { term: "Coup de Grace", definition: "Golpe de Misericórdia, runa que causa dano adicional a inimigos com pouca vida." },
+            { term: "Last Stand", definition: "Até a Morte, runa que causa dano adicional quando o campeão está com pouca vida." },
+            { term: "Cut Down", definition: "Abater, runa que causa dano adicional a inimigos com mais vida máxima." },
+            { term: "Press the Attack", definition: "Pressione o Ataque, runa que causa dano adicional e amplifica o dano de aliados após atacar um inimigo três vezes." },
+            { term: "Lethal Tempo", definition: "Ritmo Fatal, runa que concede velocidade de ataque adicional e aumenta o limite de velocidade de ataque." },
+            { term: "Fleet Footwork", definition: "Agilidade nos Pés, runa que concede cura e velocidade de movimento ao carregar um ataque." },
+            { term: "Conqueror", definition: "Conquistador, runa que concede dano adaptativo e cura ao atacar campeões inimigos, acumulando stacks." },
+            { term: "Electrocute", definition: "Eletrocutar, runa que causa dano explosivo após atingir um inimigo com três ataques ou habilidades diferentes." },
+            { term: "Dark Harvest", definition: "Colheita Sombria, runa que causa dano adicional a inimigos com pouca vida, escalando com almas coletadas." },
+            { term: "Hail of Blades", definition: "Chuva de Lâminas, runa que concede velocidade de ataque massiva para os primeiros ataques." },
+            { term: "Predator", definition: "Predador, runa que concede velocidade de movimento e dano explosivo ao ativar botas." },
+            { term: "Cheap Shot", definition: "Golpe Desleal, runa que causa dano verdadeiro adicional a inimigos com movimento restrito." },
+            { term: "Taste of Blood", definition: "Gosto de Sangue, runa que cura ao causar dano a um campeão inimigo." },
+            { term: "Sudden Impact", definition: "Impacto Repentino, runa que concede penetração de armadura e mágica após usar um dash ou teleporte." },
+            { term: "Zombie Ward", definition: "Sentinela Zumbi, runa que cria uma sentinela no local de uma sentinela inimiga destruída." },
+            { term: "Ghost Poro", definition: "Poro Fantasma, runa que cria um poro que concede visão em arbustos." },
+            { term: "Eyeball Collection", definition: "Globos Oculares, runa que concede dano adaptativo por abates de campeões e sentinelas." },
+            { term: "Ravenous Hunter", definition: "Caça Voraz, runa que concede onivampirismo por abates de campeões (removida/reworkada)." },
+            { term: "Ingenious Hunter", definition: "Caça Ardilosa, runa que reduz o tempo de recarga de itens ativos." },
+            { term: "Relentless Hunter", definition: "Caça Incansável, runa que concede velocidade de movimento fora de combate." },
+            { term: "Ultimate Hunter", definition: "Caça Suprema, runa que reduz o tempo de recarga do ultimate." },
+            { term: "Summon Aery", definition: "Invocar Aery, runa que envia um Aery para aliados (escudo) ou inimigos (dano)." },
+            { term: "Arcane Comet", definition: "Cometa Arcano, runa que lança um cometa no local do inimigo ao causar dano com habilidades." },
+            { term: "Phase Rush", definition: "Onda de Choque, runa que concede velocidade de movimento e resistência a lentidão após atingir um inimigo com três ataques ou habilidades diferentes." },
+            { term: "Manaflow Band", definition: "Faixa de Fluxo de Mana, runa que concede mana adicional e regeneração de mana ao atingir inimigos com habilidades." },
+            { term: "Nullifying Orb", definition: "Orbe Anulador, runa que concede um escudo mágico ao receber dano mágico." },
+            { term: "Nimbus Cloak", definition: "Manto de Nimbus, runa que concede velocidade de movimento após usar um feitiço de invocador." },
+            { term: "Transcendence", definition: "Transcendência, runa que concede aceleração de habilidade em certos níveis e reseta o cooldown de habilidades ao abater inimigos." },
+            { term: "Celerity", definition: "Celeridade, runa que concede velocidade de movimento adicional e converte bônus de velocidade de movimento em dano." },
+            { term: "Absolute Focus", definition: "Foco Absoluto, runa que concede dano adaptativo adicional quando o campeão está com vida alta." },
+            { term: "Scorch", definition: "Chamuscamento, runa que causa dano mágico adicional em inimigos com habilidades." },
+            { term: "Waterwalking", definition: "Caminhar Sobre as Águas, runa que concede velocidade de movimento e dano adaptativo no rio." },
+            { term: "Gathering Storm", definition: "Tempestade Crescente, runa que concede dano adaptativo adicional a cada 10 minutos de jogo." },
+            { term: "Hexflash", definition: "Flash Hextec, runa que permite carregar um flash de curto alcance enquanto canaliza." },
+            { term: "Cosmic Insight", definition: "Perspicácia Cósmica, runa que concede aceleração de item e feitiço de invocador." },
+            { term: "Approach Velocity", definition: "Velocidade de Aproximação, runa que concede velocidade de movimento adicional ao se mover em direção a inimigos com movimento restrito." },
+            { term: "Future's Market", definition: "Mercado do Futuro, runa que permite pegar empréstimos de ouro." },
+            { term: "Minion Dematerializer", definition: "Desmaterializador de Tropas, runa que permite abater instantaneamente minions para ganhar bônus." },
+            { term: "Perfect Timing", definition: "Sincronia Perfeita, runa que concede um item ativo com desconto (ex: Ampulheta de Zhonya)." },
+            { term: "Unsealed Spellbook", definition: "Livro de Feitiços Deslacrado, runa que permite trocar feitiços de invocador durante o jogo." },
+            { term: "Glacial Augment", definition: "Aprimoramento Glacial, runa que cria campos de gelo que retardam inimigos ao imobilizá-los." },
+            { term: "First Strike", definition: "Primeiro Ataque, runa que concede ouro e dano adicional ao atacar um inimigo antes dele te atacar." },
+            { term: "Predator", definition: "Predador, runa que concede velocidade de movimento e dano explosivo ao ativar botas." },
+            { term: "Dark Harvest", definition: "Colheita Sombria, runa que causa dano adicional a inimigos com pouca vida, escalando com almas coletadas." },
+            { term: "Electrocute", definition: "Eletrocutar, runa que causa dano explosivo após atingir um inimigo com três ataques ou habilidades diferentes." },
+            { term: "Hail of Blades", definition: "Chuva de Lâminas, runa que concede velocidade de ataque massiva para os primeiros ataques." },
+            { term: "Press the Attack", definition: "Pressione o Ataque, runa que causa dano adicional e amplifica o dano de aliados após atacar um inimigo três vezes." },
+            { term: "Lethal Tempo", definition: "Ritmo Fatal, runa que concede velocidade de ataque adicional e aumenta o limite de velocidade de ataque." },
+            { term: "Fleet Footwork", definition: "Agilidade nos Pés, runa que concede cura e velocidade de movimento ao carregar um ataque." },
+            { term: "Conqueror", definition: "Conquistador, runa que concede dano adaptativo e cura ao atacar campeões inimigos, acumulando stacks." },
+            { term: "Summon Aery", definition: "Invocar Aery, runa que envia um Aery para aliados (escudo) ou inimigos (dano)." },
+            { term: "Arcane Comet", definition: "Cometa Arcano, runa que lança um cometa no local do inimigo ao causar dano com habilidades." },
+            { term: "Phase Rush", definition: "Onda de Choque, runa que concede velocidade de movimento e resistência a lentidão após atingir um inimigo com três ataques ou habilidades diferentes." },
+            { term: "Manaflow Band", definition: "Faixa de Fluxo de Mana, runa que concede mana adicional e regeneração de mana ao atingir inimigos com habilidades." },
+            { term: "Nullifying Orb", definition: "Orbe Anulador, runa que concede um escudo mágico ao receber dano mágico." },
+            { term: "Nimbus Cloak", definition: "Manto de Nimbus, runa que concede velocidade de movimento após usar um feitiço de invocador." },
+            { term: "Transcendence", definition: "Transcendência, runa que concede aceleração de habilidade em certos níveis e reseta o cooldown de habilidades ao abater inimigos." },
+            { term: "Celerity", definition: "Celeridade, runa que concede velocidade de movimento adicional e converte bônus de velocidade de movimento em dano." },
+            { term: "Absolute Focus", definition: "Foco Absoluto, runa que concede dano adaptativo adicional quando o campeão está com vida alta." },
+            { term: "Scorch", definition: "Chamuscamento, runa que causa dano mágico adicional em inimigos com habilidades." }
+        ];
+
+        // Função para renderizar o glossário
+        function renderGlossary(filterTerm = '') {
+            const glossaryListDiv = document.getElementById('glossary-list');
+            glossaryListDiv.innerHTML = ''; // Limpa a lista existente
+
+            const lowerCaseFilterTerm = filterTerm.toLowerCase();
+
+            const filtered = glossaryData.filter(item =>
+                item.term.toLowerCase().includes(lowerCaseFilterTerm) ||
+                item.definition.toLowerCase().includes(lowerCaseFilterTerm)
+            );
+
+            if (filtered.length === 0) {
+                glossaryListDiv.innerHTML = '<p class="text-center text-gray-500 italic mt-8">Nenhum termo encontrado.</p>';
+            } else {
+                filtered.forEach(item => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'bg-white p-4 rounded-lg shadow-sm border border-[#CCCCCC]'; /* Borda cinzenta clara */
+
+                    const termH3 = document.createElement('h3');
+                    termH3.className = 'font-bold text-[#000000]'; /* Preto */
+                    termH3.textContent = item.term;
+
+                    const definitionP = document.createElement('p');
+                    definitionP.className = 'mt-1';
+                    definitionP.textContent = item.definition;
+
+                    itemDiv.appendChild(termH3);
+                    itemDiv.appendChild(definitionP);
+                    glossaryListDiv.appendChild(itemDiv);
+                });
+            }
+        }
+
+        // Event Listener para a barra de busca
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('glossary-search');
+            searchInput.addEventListener('input', (e) => {
+                renderGlossary(e.target.value);
+            });
+
+            // Renderiza o glossário inicial ao carregar a página
+            renderGlossary();
+        });
+    </script>
+</body>
 </html>
